@@ -1,0 +1,7 @@
+<pipeline xmlns="http://labkey.org/pipeline/xml"
+          name="hellopy" version="0.0">
+    <description>Pipeline Job for Hello Python.</description>
+    <tasks>
+        <taskref ref="HelloWorldd:task:hellopy"/>
+    </tasks>
+</pipeline>

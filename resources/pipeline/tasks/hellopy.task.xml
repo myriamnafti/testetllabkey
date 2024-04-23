@@ -1,0 +1,10 @@
+<task xmlns="http://labkey.org/pipeline/xml"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:type="ScriptTaskType"
+      name="hellopy" version="0.0">
+    <description>Says hello in Python.</description>
+    <inputs>
+        <file name="input.xls"/>
+    </inputs>
+    <script file="hellopy.py"/>
+</task>
