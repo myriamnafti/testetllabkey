@@ -3,7 +3,7 @@ from labkey.api_wrapper import APIWrapper
 import pandas as pd
 import datetime
 # Configuration de l'API LabKey
-labkey_server = 'localhost:8080'#'${baseServerURL}'
+labkey_server = 'localhost:8080'#'${baseServerURL}'"https://labk.bph.u-bordeaux.fr"
 container_path = '${containerPath}'
 
 context_path = 'labkey'
@@ -32,17 +32,27 @@ def main():
         print("Le fichier d'entree n'a pas ete trouve.")
         return
     
-
-    # Chercher les doublons pour les colonnes ParticipantId et SequenceNum 
-    duplicate_rows = df[df.duplicated(['ParticipantId', 'SequenceNum'], keep=False)]
-    if not duplicate_rows.empty:
-        print("Des doublons ont ete trouve pour les colonnes ParticipantId et SequenceNum :")
-        print(duplicate_rows)
-        # Supprimer les doublons pour les colonnes ParticipantId et SequenceNum 
-        df.drop_duplicates(subset=['ParticipantId', 'SequenceNum'], keep='first', inplace=True)
-        print("Ils ont ete supprimes.")
+    # Chercher les doublons sur toutes les colonnes de la DataFrame
+    duplicate_rows_all_columns = df[df.duplicated(keep=False)]
+    if not duplicate_rows_all_columns.empty:
+        print("Duplicates found on all DataFrame columns:")
+        print(duplicate_rows_all_columns)
+        print("Deletion of identical rows in all columns")
+        # Supprimer les lignes identiques sur toutes les colonnes
+        df.drop_duplicates(inplace=True)
+        print("Identical rows in all columns have been removed")
     else:
-        print("Aucun doublon n'a ete trouve pour les colonnes ParticipantId et SequenceNum.")
+        print("No duplicates found on all DataFrame columns")
+
+    # Chercher les doublons pour les colonnes ParticipantId et SequenceNum
+    duplicate_rows_PV = df[df.duplicated(['ParticipantId', 'SequenceNum'], keep=False)]
+    if not duplicate_rows_PV.empty:
+        print("Duplicates found for ParticipantId and SequenceNum columns:")
+        print(duplicate_rows_PV)
+        print("Unable to integrate data due to duplicates.")
+    else:
+        print("No duplicates found for ParticipantId and SequenceNum columns.")
+
 
     # Appliquer la fonction remove_special_characters aux noms de colonnes
     df.columns = df.columns.map(remove_special_characters)
@@ -83,7 +93,7 @@ def main():
     df.fillna('', inplace=True)
     # Appliquer la fonction de conversion sur toutes les colonnes
     df = df.applymap(convert_to_date_if_possible)
-    print('application de la conversion des colonnes')
+    print('The application of column conversion')
     print(df.dtypes)
     
     
@@ -128,12 +138,12 @@ def main():
 	    }
         }
 
-    print("Creating new dataset: pythondemodt")
+    print("Creating new dataset:",dataset_name)
     new_exam_dataset_domain = api.domain.create(new_exam_dataset_def)
     
     schema = 'study'
     table = dataset_name
-    print("Insertion des donnees dans LabKey...")
+    print("Inserting data into LabKey...")
     try:
         
         inserted_rows = api.query.insert_rows(schema, table, df.to_dict(orient='records'))
@@ -143,12 +153,12 @@ def main():
         labkey_df = pd.DataFrame(labkey_data['rows'])
         
         if df.equals(labkey_df):
-            print("Les donnees integrees dans LabKey sont identiques au fichier d'entree.")
+            print("The data integrated in LabKey is identical to the input file.")
         else:
-            print("Les donnees integrees dans LabKey ne sont pas identiques au fichier d'entree.")
+            print("The data integrated in LabKey are not identical to the input file.")
             
     except Exception as e:
-        print(f"Une erreur s'est produite lors de l'insertion des donnees dans LabKey : {str(e)}")
+        print(f"An error occurred while inserting data into LabKey : {str(e)}")
 
 
 
